@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Update</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Google Sans','Roboto',Arial,sans-serif;
+    background:#F1F2F6; color:#1B1B1F;
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .wrap{width:100%; max-width:420px; display:flex; flex-direction:column; align-items:center; gap:22px;}
+  .logo{
+    max-width:150px; max-height:150px; border-radius:24px;
+    box-shadow:0 4px 14px rgba(32,33,36,0.18);
+  }
+  a.banner, .banner-static{
+    display:block; width:100%; border-radius:18px; overflow:hidden;
+    box-shadow:0 4px 18px rgba(32,33,36,0.18);
+    text-decoration:none; transition:transform .1s ease;
+  }
+  a.banner:active{transform:scale(0.97);}
+  a.banner img, .banner-static img{width:100%; display:block;}
+  .empty{
+    color:#5F6368; font-size:14px; text-align:center; padding:40px 20px;
+    border:2px dashed #DADCE0; border-radius:18px; width:100%;
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="empty">Loading…</div>
+</div>
+
+<script>
+(function(){
+  const BLOB_URL = "https://gist.githubusercontent.com/RA1-Asur/3b91533f1d388f473cca0821f38dfe87/raw/config.json";
+  const app = document.getElementById("app");
+
+  function render(data){
+    let html = "";
+
+    if (data.logoUrl){
+      html += '<img class="logo" src="'+esc(data.logoUrl)+'" alt="" onerror="this.style.display=\'none\'" />';
+    }
+
+    if (data.bannerUrl && data.link){
+      html += '<a class="banner" href="'+esc(data.link)+'"><img src="'+esc(data.bannerUrl)+'" alt="Update" onerror="this.parentElement.style.display=\'none\'" /></a>';
+    } else if (data.bannerUrl){
+      html += '<div class="banner-static"><img src="'+esc(data.bannerUrl)+'" alt="" onerror="this.parentElement.style.display=\'none\'" /></div>';
+    } else {
+      html += '<div class="empty">No update available right now</div>';
+    }
+
+    app.innerHTML = html || '<div class="empty">Nothing to show yet</div>';
+  }
+
+  function esc(s){ return (s||"").replace(/"/g, "&quot;"); }
+
+  fetch(BLOB_URL + "?v=" + Date.now(), { cache: "no-store" })
+    .then(r => { if (!r.ok) throw new Error("bad response"); return r.json(); })
+    .then(render)
+    .catch(() => {
+      app.innerHTML = '<div class="empty">Couldn\'t load right now. Check your connection and reopen the page.</div>';
+    });
+})();
+</script>
+</body>
+</html>
